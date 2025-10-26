@@ -1,0 +1,19 @@
+# macOS
+.DS_Store
+
+# Swift Package Manager
+.build/
+DerivedData/
+Package.resolved
+
+# Node / Vite
+client/node_modules/
+client/dist/
+client/.vite/
+
+# Logs
+*.log
+
+# VSCode / JetBrains
+.idea/
+.vscode/
