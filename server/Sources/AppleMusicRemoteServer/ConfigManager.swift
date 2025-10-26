@@ -3,11 +3,13 @@ import Foundation
 struct ServerConfiguration: Codable {
     var port: UInt16
     var serviceName: String
+    var webSocketPort: UInt16
     var autoServeClient: Bool
     var staticSearchPaths: [String]
 
     static let `default` = ServerConfiguration(
         port: 8777,
+        webSocketPort: 8778,
         serviceName: "Apple Music Remote",
         autoServeClient: true,
         staticSearchPaths: [
@@ -16,6 +18,47 @@ struct ServerConfiguration: Codable {
             "../../client/dist"
         ]
     )
+
+    enum CodingKeys: String, CodingKey {
+        case port
+        case webSocketPort
+        case serviceName
+        case autoServeClient
+        case staticSearchPaths
+    }
+
+    init(
+        port: UInt16,
+        webSocketPort: UInt16,
+        serviceName: String,
+        autoServeClient: Bool,
+        staticSearchPaths: [String]
+    ) {
+        self.port = port
+        self.webSocketPort = webSocketPort
+        self.serviceName = serviceName
+        self.autoServeClient = autoServeClient
+        self.staticSearchPaths = staticSearchPaths
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let port = try container.decode(UInt16.self, forKey: .port)
+        self.port = port
+        self.webSocketPort = try container.decodeIfPresent(UInt16.self, forKey: .webSocketPort) ?? port &+ 1
+        self.serviceName = try container.decode(String.self, forKey: .serviceName)
+        self.autoServeClient = try container.decodeIfPresent(Bool.self, forKey: .autoServeClient) ?? true
+        self.staticSearchPaths = try container.decodeIfPresent([String].self, forKey: .staticSearchPaths) ?? ServerConfiguration.default.staticSearchPaths
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(port, forKey: .port)
+        try container.encode(webSocketPort, forKey: .webSocketPort)
+        try container.encode(serviceName, forKey: .serviceName)
+        try container.encode(autoServeClient, forKey: .autoServeClient)
+        try container.encode(staticSearchPaths, forKey: .staticSearchPaths)
+    }
 }
 
 final class ConfigManager {

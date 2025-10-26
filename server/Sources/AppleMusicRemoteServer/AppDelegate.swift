@@ -11,10 +11,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let connectionTracker = ConnectionTracker()
     private var router: RESTRouter!
     private var httpServer: HTTPServer?
+    private var webSocketServer: WebSocketServer?
     private var discoveryService: DiscoveryService?
     private var menuController: MenuBarController!
     private var updateTimer: DispatchSourceTimer?
     private var lastPlayback: PlaybackInfo?
+    private var serverStatus: ServerStatus!
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         configuration = configManager.loadConfiguration()
@@ -22,13 +24,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let _ = securityManager.loadOrCreateToken()
         staticServer = StaticFileServer(configuration: configuration)
 
+        serverStatus = ServerStatus(
+            name: configuration.serviceName,
+            version: ServerVersion,
+            port: configuration.port,
+            webSocketPort: configuration.webSocketPort,
+            requiresToken: true
+        )
+
         router = RESTRouter(
             musicController: musicController,
             staticServer: staticServer,
             securityManager: securityManager,
             connectionTracker: connectionTracker,
             configuration: configuration,
-            systemVolumeController: systemVolumeController
+            systemVolumeController: systemVolumeController,
+            serverStatus: serverStatus
         )
 
         menuController = MenuBarController(
@@ -43,6 +54,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         )
 
         startServer()
+        startWebSocketServer()
         startDiscovery()
         scheduleUpdates()
     }
@@ -50,6 +62,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationWillTerminate(_ notification: Notification) {
         updateTimer?.cancel()
         httpServer?.stop()
+        webSocketServer?.stop()
         discoveryService?.stop()
     }
 
@@ -74,6 +87,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let service = DiscoveryService(
             name: configuration.serviceName,
             port: Int32(configuration.port),
+            webSocketPort: Int32(configuration.webSocketPort),
             version: ServerVersion,
             requiresToken: true
         )
@@ -92,12 +106,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func refreshPlayback() {
-        let basePlayback = try? musicController.playbackInfo()
-        let systemVolume = try? systemVolumeController.getVolume()
-        let playback = basePlayback?.withSystemVolume(systemVolume)
+        let playback = try? capturePlaybackState()
         lastPlayback = playback
         let connections = connectionTracker.summary()
         menuController.update(playback: playback, configuration: configuration, connections: connections)
+        if let playback = playback {
+            webSocketServer?.broadcastPlayback(playback)
+        }
     }
 
     private func performMenuAction(_ block: @escaping (MusicController) throws -> Void) {
@@ -133,4 +148,72 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func presentNonFatalError(_ message: String) {
         NSLog(message)
     }
+
+    private func startWebSocketServer() {
+        do {
+            let server = try WebSocketServer(
+                port: configuration.webSocketPort,
+                securityManager: securityManager,
+                connectionTracker: connectionTracker,
+                serverStatus: serverStatus,
+                playbackProvider: { [weak self] in
+                    guard let self else { throw PlaybackStateError.unavailable }
+                    return try self.capturePlaybackState()
+                },
+                executeCommand: { [weak self] action in
+                    guard let self else { throw PlaybackStateError.unavailable }
+                    let playback = try self.executeCommand(named: action)
+                    DispatchQueue.main.async { [weak self] in self?.refreshPlayback() }
+                    return playback
+                },
+                setMusicVolume: { [weak self] value in
+                    guard let self else { throw PlaybackStateError.unavailable }
+                    try self.musicController.setVolume(value)
+                    let playback = try self.capturePlaybackState()
+                    DispatchQueue.main.async { [weak self] in self?.refreshPlayback() }
+                    return playback
+                },
+                setSystemVolume: { [weak self] value in
+                    guard let self else { throw PlaybackStateError.unavailable }
+                    try self.systemVolumeController.setVolume(value)
+                    let playback = try self.capturePlaybackState()
+                    DispatchQueue.main.async { [weak self] in self?.refreshPlayback() }
+                    return playback
+                }
+            )
+            server.start()
+            webSocketServer = server
+        } catch {
+            presentNonFatalError("Unable to start WebSocket server: \(error)")
+        }
+    }
+
+    private func capturePlaybackState() throws -> PlaybackInfo {
+        let playback = try musicController.playbackInfo()
+        let systemVolume = try? systemVolumeController.getVolume()
+        return playback.withSystemVolume(systemVolume)
+    }
+
+    private func executeCommand(named action: String) throws -> PlaybackInfo {
+        switch action.lowercased() {
+        case "play":
+            try musicController.play()
+        case "pause":
+            try musicController.pause()
+        case "toggle":
+            try musicController.togglePlayPause()
+        case "next":
+            try musicController.nextTrack()
+        case "previous":
+            try musicController.previousTrack()
+        default:
+            throw PlaybackStateError.unknownCommand
+        }
+        return try capturePlaybackState()
+    }
+}
+
+private enum PlaybackStateError: Error {
+    case unavailable
+    case unknownCommand
 }

@@ -5,7 +5,7 @@ Apple Music Remote is a macOS menu bar application paired with a responsive web 
 ## Features
 
 - Swift-native menu bar helper that controls Music.app without stealing focus
-- REST API with low-latency playback commands, progress polling, and both Music.app and system volume control
+- REST API with WebSocket push channel for real-time control, playback updates, and both Music.app and system volume management
 - Bonjour (`_amremote._tcp`) advertising for zero-config discovery
 - Built-in authentication via a generated access token
 - Responsive React UI tailored for phones, tablets, and touch kiosks

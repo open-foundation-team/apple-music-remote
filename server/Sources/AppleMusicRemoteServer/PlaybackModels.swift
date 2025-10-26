@@ -36,6 +36,7 @@ struct ServerStatus: Codable {
     let name: String
     let version: String
     let port: UInt16
+    let webSocketPort: UInt16
     let requiresToken: Bool
 }
 

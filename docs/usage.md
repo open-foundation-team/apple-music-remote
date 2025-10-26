@@ -44,6 +44,13 @@ The build step outputs a production bundle in `client/dist/`. The server looks f
 
 The web UI adapts to phone and tablet layouts and is touch-friendly for kiosk deployments (e.g. Raspberry Pi touchscreens running Chromium in kiosk mode).
 
+### WebSocket channel
+
+- The WebSocket listener defaults to port `8778` (configurable via `webSocketPort`).
+- The client authenticates by sending `{ "type": "auth", "token": "..." }` immediately after connecting, then requests the latest state.
+- Heartbeats are exchanged every ~20 seconds; if the connection drops (sleeping device, flaky Wi-Fi), the UI automatically retries until it reconnects.
+- All playback commands and volume changes are transmitted over this socket, so no REST polling is required once connected.
+
 ## 5. Configuration
 
 The configuration file supports the following keys:
@@ -51,6 +58,7 @@ The configuration file supports the following keys:
 ```json
 {
   "port": 8777,
+  "webSocketPort": 8778,
   "serviceName": "Apple Music Remote",
   "autoServeClient": true,
   "staticSearchPaths": [
@@ -62,6 +70,7 @@ The configuration file supports the following keys:
 ```
 
 - `port`: TCP port for the REST API and static assets
+- `webSocketPort`: Port used for the WebSocket control channel
 - `serviceName`: Displayed in the status menu and Bonjour broadcasts
 - `autoServeClient`: When `true`, the server looks for a built web client bundle and serves it
 - `staticSearchPaths`: Directories to scan (relative to the executable) before falling back to the embedded placeholder UI. With `autoServeClient` enabled the app also walks parent directories from the executable and working directory to locate `client/dist` automatically.

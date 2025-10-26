@@ -9,6 +9,7 @@ final class RESTRouter {
     private let systemVolumeController: SystemVolumeController
     private let encoder: JSONEncoder
     private let version: String = ServerVersion
+    private let serverStatus: ServerStatus
 
     init(
         musicController: MusicController,
@@ -16,7 +17,8 @@ final class RESTRouter {
         securityManager: SecurityManager,
         connectionTracker: ConnectionTracker,
         configuration: ServerConfiguration,
-        systemVolumeController: SystemVolumeController
+        systemVolumeController: SystemVolumeController,
+        serverStatus: ServerStatus
     ) {
         self.musicController = musicController
         self.staticServer = staticServer
@@ -24,6 +26,7 @@ final class RESTRouter {
         self.connectionTracker = connectionTracker
         self.configuration = configuration
         self.systemVolumeController = systemVolumeController
+        self.serverStatus = serverStatus
 
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
@@ -47,16 +50,12 @@ final class RESTRouter {
     private func handleAPI(_ request: HTTPRequest) -> HTTPResponse {
         switch (request.method, request.path) {
         case (.get, "/api/ping"):
-            return jsonResponse(ServerStatus(
-                name: configuration.serviceName,
-                version: version,
-                port: configuration.port,
-                requiresToken: true
-            ))
+            return jsonResponse(serverStatus)
         case (.get, "/api/discovery"):
             let payload: [String: Any] = [
                 "name": configuration.serviceName,
                 "port": configuration.port,
+                "webSocketPort": configuration.webSocketPort,
                 "version": version,
                 "requiresToken": true
             ]

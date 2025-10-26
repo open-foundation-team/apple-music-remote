@@ -26,5 +26,6 @@ export interface ServerStatus {
   name: string;
   version: string;
   port: number;
+  webSocketPort: number;
   requiresToken: boolean;
 }

@@ -4,11 +4,12 @@ final class DiscoveryService: NSObject, NetServiceDelegate {
     private let service: NetService
     private var txtRecords: [String: Data]
 
-    init(name: String, port: Int32, version: String, requiresToken: Bool) {
+    init(name: String, port: Int32, webSocketPort: Int32, version: String, requiresToken: Bool) {
         self.service = NetService(domain: "local.", type: "_amremote._tcp.", name: name, port: port)
         self.txtRecords = [
             "version": Data(version.utf8),
-            "requiresToken": Data((requiresToken ? "1" : "0").utf8)
+            "requiresToken": Data((requiresToken ? "1" : "0").utf8),
+            "wsport": Data(String(webSocketPort).utf8)
         ]
         super.init()
         service.includesPeerToPeer = true

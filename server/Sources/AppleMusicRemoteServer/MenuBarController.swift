@@ -81,7 +81,7 @@ final class MenuBarController {
                 self.playPauseItem.title = "Play"
             }
 
-            self.serviceItem.title = "Service: \(configuration.serviceName) (\(configuration.port))"
+            self.serviceItem.title = "Service: \(configuration.serviceName) (HTTP \(configuration.port) · WS \(configuration.webSocketPort))"
 
             if let lastSeen = connections.lastSeen {
                 let formatter = RelativeDateTimeFormatter()

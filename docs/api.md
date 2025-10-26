@@ -23,6 +23,7 @@ Example response:
   "name": "Apple Music Remote",
   "version": "0.1.0",
   "port": 8777,
+  "webSocketPort": 8778,
   "requiresToken": true
 }
 ```
@@ -86,6 +87,33 @@ All control endpoints require authentication. Responses use HTTP `204 No Content
 | POST | `/api/system-volume` | Sets the macOS output volume. Body: `{ "volume": <0-100> }` |
 
 > System volume control may prompt macOS to request Accessibility permissions for Apple Music Remote. Grant access to allow remote control of output volume.
+
+## WebSocket Protocol
+
+- Endpoint: `ws://<host>:<webSocketPort>/`
+- Authentication: send an `{"type":"auth","token":"<token>"}` message immediately after the socket opens. Connections that do not authenticate within 10 seconds are closed.
+- Heartbeats: the server sends ping frames roughly every 20 seconds. Clients respond automatically (handled by browsers) and may optionally send an app-level `{ "type": "ping" }` message; the server replies with `{ "type": "pong" }`.
+
+### Message Types (client → server)
+
+| Type | Payload | Description |
+| ---- | ------- | ----------- |
+| `auth` | `{ "token": string }` | Authenticate the socket using the shared token |
+| `command` | `{ "action": "play" \| "pause" \| "toggle" \| "next" \| "previous" }` | Playback control commands |
+| `setVolume` | `{ "target": "music" \| "system", "value": number }` | Set either the Music.app or system volume (0-100) |
+| `requestState` | _none_ | Request the latest playback snapshot |
+| `ping` | _none_ | Optional application-level ping |
+
+### Message Types (server → client)
+
+| Type | Payload | Description |
+| ---- | ------- | ----------- |
+| `auth` | `{ "message": "ok" }` | Result of the authentication attempt |
+| `hello` | `{ "server": ServerStatus, "heartbeatInterval": number }` | Sent after successful auth with heartbeat and metadata |
+| `playback` | `{ "payload": PlaybackInfo }` | Current playback snapshot (sent on connect and whenever state changes) |
+| `ack` | `{ "action": string }` | Acknowledgement that a command or volume change succeeded |
+| `error` | `{ "message": string }` | An error occurred while processing a message |
+| `pong` | _none_ | Response to an application-level ping |
 
 ## Static Content
 
