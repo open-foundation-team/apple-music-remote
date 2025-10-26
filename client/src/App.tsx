@@ -2,49 +2,12 @@ import { ConnectionStatus, useRemoteConnection } from "./hooks/useRemoteConnecti
 import { useAutoDiscovery } from "./hooks/useAutoDiscovery";
 import { usePersistentState } from "./hooks/usePersistentState";
 import { useVolumeControls } from "./hooks/useVolumeControls";
-import { PlaybackInfo } from "./api/types";
+import { formatTime } from "./utils/time";
+import { calculateProgressPercent } from "./utils/playback";
+import { statusDotClass } from "./utils/status";
+import { inferDefaultBaseUrl } from "./utils/network";
+import { buildStatusLabel, derivePlaybackDetails } from "./utils/connection";
 import "./styles/App.css";
-
-const inferDefaultBaseUrl = (): string => {
-  if (typeof window === "undefined") {
-    return "";
-  }
-  const origin = window.location.origin;
-  return origin.startsWith("http") && !origin.includes(":5173") ? origin : "";
-};
-
-const formatTime = (seconds?: number | null): string => {
-  if (seconds === undefined || seconds === null || Number.isNaN(seconds)) {
-    return "--:--";
-  }
-  const safeSeconds = Math.max(0, Math.floor(seconds));
-  const minutes = Math.floor(safeSeconds / 60)
-    .toString()
-    .padStart(2, "0");
-  const remainder = Math.floor(safeSeconds % 60)
-    .toString()
-    .padStart(2, "0");
-  return `${minutes}:${remainder}`;
-};
-
-const artworkFromPlayback = (playback: PlaybackInfo | null): string | null => {
-  const artwork = playback?.track?.artworkBase64;
-  return artwork ? `data:image/png;base64,${artwork}` : null;
-};
-
-const statusDot = (status: ConnectionStatus): string => {
-  switch (status) {
-    case "connected":
-      return "status-dot connected";
-    case "connecting":
-      return "status-dot connecting";
-    case "error":
-      return "status-dot error";
-    case "idle":
-    default:
-      return "status-dot idle";
-  }
-};
 
 const App = () => {
   const [baseUrl, setBaseUrl] = usePersistentState<string>("amr.baseUrl", inferDefaultBaseUrl);
@@ -89,39 +52,11 @@ const App = () => {
     sendCommand("previous");
   };
 
-  const artworkSrc = artworkFromPlayback(playback);
-  const trackTitle = playback?.track?.title ?? "No track playing";
-  const trackArtist = playback?.track?.artist ?? "";
-  const trackAlbum = playback?.track?.album ?? "";
-  const playbackState = playback?.state ?? "stopped";
+  const { artworkSrc, trackTitle, trackArtist, trackAlbum, playbackState } = derivePlaybackDetails(playback);
   const disableControls = status !== "connected";
-  const progressPercent = (() => {
-    const progress = playback?.progress;
-    if (!progress || !progress.duration) {
-      return 0;
-    }
-    return Math.min(100, Math.max(0, (progress.elapsed / progress.duration) * 100));
-  })();
+  const progressPercent = calculateProgressPercent(playback);
 
-  const statusLabel = (() => {
-    switch (status) {
-      case "connected":
-        return `Connected${serverInfo ? ` · ${serverInfo.name}` : ""}`;
-      case "connecting":
-        return "Connecting";
-      case "error":
-        return error ?? "Connection error";
-      case "idle":
-      default:
-        if (!token) {
-          return "Access token required";
-        }
-        if (!baseUrl) {
-          return "Waiting for server";
-        }
-        return "Idle";
-    }
-  })();
+  const statusLabel = buildStatusLabel(status, token, baseUrl, serverInfo?.name ?? null, error);
 
   return (
     <div className="app-shell">
@@ -141,7 +76,7 @@ const App = () => {
 
         <div>
           <div className="status-badge">
-            <span className={statusDot(status)} />
+            <span className={statusDotClass(status)} />
             <span>{statusLabel}</span>
           </div>
           {serverInfo && (
@@ -157,10 +92,7 @@ const App = () => {
 
           <div>
             <div className="progress-bar">
-              <div
-                className="progress-fill"
-                style={{ width: `${progressPercent}%` }}
-              />
+              <div className="progress-fill" style={{ width: `${progressPercent}%` }} />
             </div>
             <div className="progress-times">
               <span>{formatTime(playback?.progress?.elapsed)}</span>

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { RemoteApi } from "../api/client";
 import { PlaybackInfo, ServerStatus } from "../api/types";
+import { normalizeBaseUrl } from "../utils/network";
 
 export type ConnectionStatus = "idle" | "connecting" | "connected" | "error";
 
@@ -45,17 +46,6 @@ export function useRemoteConnection({ baseUrl, token }: RemoteConnectionOptions)
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectTimerRef = useRef<number | null>(null);
   const heartbeatTimerRef = useRef<number | null>(null);
-
-  const normalizeBaseUrl = useCallback((value: string) => {
-    if (!value) {
-      return "";
-    }
-    const trimmed = value.trim();
-    if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
-      return trimmed;
-    }
-    return `http://${trimmed}`;
-  }, []);
 
   const api = useMemo(() => {
     if (!baseUrl || !token) {

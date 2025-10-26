@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
+import { normalizeBaseUrl, stripTrailingSlash } from "../utils/network";
 
-function normalizeCandidate(url: string): string {
-  return url.replace(/\/+$/, "");
-}
 
 export function useAutoDiscovery(baseUrl: string, onDiscovered: (url: string) => void): boolean {
   const [attempted, setAttempted] = useState(false);
@@ -17,7 +15,7 @@ export function useAutoDiscovery(baseUrl: string, onDiscovered: (url: string) =>
     const candidates = new Set<string>();
 
     if (typeof window !== "undefined" && window.location.origin.startsWith("http")) {
-      candidates.add(window.location.origin);
+      candidates.add(stripTrailingSlash(window.location.origin));
       const host = window.location.hostname;
       if (host && host !== "localhost") {
         candidates.add(`http://${host}:8777`);
@@ -31,7 +29,7 @@ export function useAutoDiscovery(baseUrl: string, onDiscovered: (url: string) =>
           return;
         }
         try {
-          const base = normalizeCandidate(candidate);
+          const base = normalizeBaseUrl(candidate);
           const response = await fetch(`${base}/api/ping`, { method: "GET", mode: "cors" });
           if (!response.ok) {
             continue;
