@@ -6,28 +6,32 @@
 
   width: 100%;
   gap: 2rem;
+}
 
-  .scrubberLabel {
-    font-size: 1rem;
-    color: #ccc;
-    text-wrap: nowrap;
-  }
+.scrubberLabel {
+  font-size: 1rem;
+  color: #ccc;
+  text-wrap: nowrap;
+}
 
-  progress {
-    width: 100%;
-    height: 0.25rem;
-    border-radius: 0.5rem;
-    transition: all 0.2s ease-in-out;
+.scrubberProgress {
+  width: 100%;
+  height: 0.25rem;
+  border-radius: 0.5rem;
+  transition: width 0.2s ease-in-out;
+}
 
-    &::-webkit-progress-bar {
-      background: #cccccc99;
-      border-radius: 0.5rem;
-    }
+:is(.scrubberProgress)::-webkit-progress-bar {
+  background: #cccccc99;
+  border-radius: 0.5rem;
+}
 
-    &::-webkit-progress-value {
-      background: #fff;
-      border-radius: 0.5rem;
-      transition: all 3s ease;
-    }
-  }
+:is(.scrubberProgress)::-webkit-progress-value {
+  background: #fff;
+  border-radius: 0.5rem;
+  transition: width 0.3s ease;
+}
+
+.isAnimating::-webkit-progress-value {
+  transition: none;
 }

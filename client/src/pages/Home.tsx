@@ -13,10 +13,10 @@ import { VolumeControl } from '../components/VolumeControl';
 import { useRemoteConnection } from '../hooks/useRemoteConnection';
 import { usePersistentState } from '../hooks/usePersistentState';
 import { useVolumeControls } from '../hooks/useVolumeControls';
+import { usePlaybackProgress } from '../hooks/usePlaybackProgress';
 import { useAutoDiscovery } from '../hooks/useAutoDiscovery';
 
 import { buildStatusLabel, derivePlaybackDetails } from '../utils/connection';
-import { calculateProgressPercent } from '../utils/playback';
 import { inferDefaultBaseUrl } from '../utils/network';
 
 import styles from '../styles/Home.module.css';
@@ -51,6 +51,14 @@ const Home = () => {
     onError: setError,
   });
 
+  const {
+    displayElapsed,
+    displayPercent,
+    duration,
+    mode: progressMode,
+    resetAnimationKey,
+  } = usePlaybackProgress({ playback });
+
   const handleToggle = () => {
     sendCommand('toggle');
   };
@@ -66,7 +74,6 @@ const Home = () => {
   const { artworkSrc, trackTitle, trackArtist, trackAlbum, playbackState } =
     derivePlaybackDetails(playback);
   const disableControls = status !== 'connected';
-  const progressPercent = calculateProgressPercent(playback);
 
   const statusLabel = buildStatusLabel(
     status,
@@ -109,7 +116,13 @@ const Home = () => {
           </div>
         </div>
         <div className={styles.appBottom}>
-          <TrackScrubber progressPercent={progressPercent} playback={playback} />
+          <TrackScrubber
+            elapsed={displayElapsed}
+            duration={duration}
+            percent={displayPercent}
+            mode={progressMode}
+            resetKey={resetAnimationKey}
+          />
           <VolumeControl
             systemVolume={systemVolume}
             handleSystemVolumeChange={handleSystemVolumeChange}
