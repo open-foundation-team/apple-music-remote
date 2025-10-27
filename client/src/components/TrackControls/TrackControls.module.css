@@ -1,0 +1,32 @@
+.buttonGroup {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 2rem;
+
+  button {
+    font-size: 2rem;
+    padding: 1rem 1.2rem;
+    border-radius: 0.5rem;
+
+    border: none;
+    color: #fff;
+    background: none;
+
+    cursor: pointer;
+
+    &.primary {
+      color: #000;
+      background: #fff;
+      clip-path: url(#SquircleClip);
+
+      transition: all 0.2s ease-in-out;
+
+      &:hover {
+        background: #f0f0f0;
+        scale: 1.05;
+      }
+    }
+  }
+}

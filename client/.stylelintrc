@@ -1,0 +1,20 @@
+{
+  "extends": ["stylelint-prettier/recommended"],
+  "rules": {
+    "property-no-unknown": true,
+    "block-no-empty": true,
+    "color-no-invalid-hex": true,
+    "declaration-block-no-duplicate-properties": true,
+    "unit-no-unknown": true,
+    "max-nesting-depth": 3,
+    "color-hex-length": "short",
+    "font-weight-notation": "numeric",
+    "length-zero-no-unit": true,
+    "declaration-empty-line-before": "never",
+    "rule-empty-line-before": ["always", { "except": ["first-nested"] }],
+    "declaration-property-value-disallowed-list": {
+      "padding": ["/^([a-zA-Z0-9.]+) \\1$/"],
+      "margin": ["/^([a-zA-Z0-9.]+) \\1$/"]
+    }
+  }
+}

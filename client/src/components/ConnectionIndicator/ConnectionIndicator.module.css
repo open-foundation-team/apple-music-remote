@@ -1,0 +1,43 @@
+.connectionIdicatorStyled {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+
+  width: fit-content;
+
+  font-size: 0.85rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 1rem;
+
+  color: #fff;
+  background: rgba(148, 163, 184, 0.15);
+
+  z-index: 1000;
+}
+
+.statusDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+
+  &.connected {
+    background: #22c55e;
+  }
+
+  &.connecting {
+    background: #facc15;
+  }
+
+  &.error {
+    background: #ef4444;
+  }
+
+  &.idle {
+    background: #94a3b8;
+  }
+}

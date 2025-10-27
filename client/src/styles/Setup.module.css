@@ -1,0 +1,57 @@
+.appContainer {
+  width: 100dvw;
+  height: 100dvh;
+}
+
+.appMain {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10rem;
+
+  width: 100%;
+  height: 100%;
+
+  position: relative;
+  z-index: 1;
+
+  .appTop {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10rem;
+
+    width: 75%;
+
+    > :nth-child(1) {
+      flex: 0 0 50%;
+    }
+
+    > :nth-child(2) {
+      flex: 50% 0 50%;
+    }
+
+    .artworkContainer {
+      width: 100%;
+      height: 100%;
+    }
+  }
+
+  .appBottom {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5rem;
+
+    width: 80%;
+  }
+
+  .playbackContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 2rem;
+  }
+}

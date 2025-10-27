@@ -1,0 +1,29 @@
+.settingsButtonStyled {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: fit-content;
+
+  border: none;
+  color: #fff;
+  background: none;
+
+  cursor: pointer;
+
+  transition: all 0.2s ease-in-out;
+  z-index: 1000;
+
+  svg {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  &:hover {
+    scale: 1.05;
+  }
+}

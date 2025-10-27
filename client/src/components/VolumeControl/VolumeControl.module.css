@@ -1,0 +1,20 @@
+.volumeContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+
+  width: 20%;
+
+  color: #ccc;
+
+  .volumeSlider {
+    width: 100%;
+    height: 0.35rem;
+    border-radius: 0.5rem;
+    background: #cccccc99;
+    cursor: pointer;
+    outline: none;
+    border: none;
+  }
+}
