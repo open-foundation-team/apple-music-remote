@@ -1,18 +1,20 @@
-import { ServerStatus } from '../../api/types';
-import { usePersistentState } from '../../hooks/usePersistentState';
-import { inferDefaultBaseUrl } from '../../utils/network';
 import styles from './SettingsModal.module.css';
 
 interface SettingsModalProps {
   onClose: () => void;
+  baseUrl: string;
+  token: string;
+  setBaseUrl: (baseUrl: string) => void;
+  setToken: (token: string) => void;
 }
 
-export const SettingsModal = ({ onClose }: SettingsModalProps) => {
-  const [baseUrl, setBaseUrl] = usePersistentState<string>(
-    'amr.baseUrl',
-    inferDefaultBaseUrl
-  );
-  const [token, setToken] = usePersistentState<string>('amr.token', '');
+export const SettingsModal = ({
+  onClose,
+  baseUrl,
+  token,
+  setBaseUrl,
+  setToken,
+}: SettingsModalProps) => {
   return (
     <div className={styles.modalContainer}>
       <div className={styles.settingsModal}>

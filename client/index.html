@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -10,4 +10,18 @@
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
+
+  <svg class="hidden" viewBox="0 0 1 1" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <clipPath id="SquircleClip" clipPathUnits="objectBoundingBox">
+        <path
+          d="M 0,0.5
+                C 0,0.0575  0.0575,0  0.5,0
+                  0.9425,0  1,0.0575  1,0.5
+                  1,0.9425  0.9425,1  0.5,1
+                  0.0575,1  0,0.9425  0,0.5"
+        ></path>
+      </clipPath>
+    </defs>
+  </svg>
 </html>

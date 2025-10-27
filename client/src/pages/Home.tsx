@@ -28,7 +28,7 @@ const Home = () => {
     'amr.baseUrl',
     inferDefaultBaseUrl
   );
-  const [token] = usePersistentState<string>('amr.token', '');
+  const [token, setToken] = usePersistentState<string>('amr.token', '');
 
   useAutoDiscovery(baseUrl, setBaseUrl);
 
@@ -80,7 +80,15 @@ const Home = () => {
     <div className={styles.appContainer}>
       <ConnectionIndicator status={status} statusLabel={statusLabel} />
       <SettingsButton onClick={() => setShowSettingsModal(true)} />
-      {showSettingsModal && <SettingsModal onClose={() => setShowSettingsModal(false)} />}
+      {showSettingsModal && (
+        <SettingsModal
+          onClose={() => setShowSettingsModal(false)}
+          baseUrl={baseUrl}
+          token={token}
+          setBaseUrl={setBaseUrl}
+          setToken={setToken}
+        />
+      )}
       <BackgroundArtwork src={artworkSrc} alt={trackTitle} />
       <div className={styles.appMain}>
         <div className={styles.appTop}>
