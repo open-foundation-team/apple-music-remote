@@ -16,6 +16,11 @@
   color: #fff;
 
   box-shadow: 0 0 100px #000;
+
+  @media screen and (max-width: 841px) {
+    max-width: 260px;
+    max-height: 260px;
+  }
 }
 
 .artwork,

@@ -54,4 +54,17 @@
     justify-content: center;
     gap: 2rem;
   }
+
+  @media screen and (max-width: 841px) {
+    gap: 3rem;
+    margin-top: 1.25rem;
+
+    .appTop {
+      gap: 4rem;
+    }
+
+    .appBottom {
+      gap: 2rem;
+    }
+  }
 }

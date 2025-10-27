@@ -20,4 +20,17 @@
     font-size: 2rem;
     color: #ccc;
   }
+
+  @media screen and (max-width: 841px) {
+    .trackTitle {
+      font-size: 2rem;
+    }
+
+    .trackArtist {
+      font-size: 1.5rem;
+    }
+    .trackAlbum {
+      font-size: 1rem;
+    }
+  }
 }

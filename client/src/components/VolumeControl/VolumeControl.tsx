@@ -1,3 +1,5 @@
+import { SpeakerXMarkIcon, SpeakerWaveIcon } from '@heroicons/react/24/outline';
+
 import styles from './VolumeControl.module.css';
 
 interface VolumeControlProps {
@@ -11,8 +13,11 @@ export const VolumeControl = ({
   handleSystemVolumeChange,
   disableControls,
 }: VolumeControlProps) => {
+  const VolumeIcon = systemVolume === 0 ? <SpeakerXMarkIcon /> : <SpeakerWaveIcon />;
+
   return (
     <div className={styles.volumeContainer}>
+      <div className={styles.volumeIcon}>{VolumeIcon}</div>
       <input
         className={styles.volumeSlider}
         type="range"
@@ -23,7 +28,7 @@ export const VolumeControl = ({
         onChange={event => handleSystemVolumeChange(Number(event.target.value))}
         disabled={disableControls}
       />
-      <div>{systemVolume}</div>
+      <p className={styles.volumeLabel}>{systemVolume}</p>
     </div>
   );
 };
