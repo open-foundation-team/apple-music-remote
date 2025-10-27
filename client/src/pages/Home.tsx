@@ -19,7 +19,7 @@ import { buildStatusLabel, derivePlaybackDetails } from '../utils/connection';
 import { calculateProgressPercent } from '../utils/playback';
 import { inferDefaultBaseUrl } from '../utils/network';
 
-import styles from '../styles/Setup.module.css';
+import styles from '../styles/Home.module.css';
 
 const Home = () => {
   const [showSettingsModal, setShowSettingsModal] = useState<boolean>(false);
